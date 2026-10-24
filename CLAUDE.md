@@ -9,4 +9,4 @@ PALIMPSEST is a high-performance dataset engine designed for Mixed Boolean-Arith
 - Zero-trust security: Enforce strict whitelist validation for AST nodes before any evaluation, slicing, or compilation.
 
 ## Phase Tracker
-- Phase Status: Dataset Phase 1: Environment & AST Slicer - Complete
+- Phase Status: Dataset Phase 2: Canonical Seeds & Deep MBA Substitution - Complete
