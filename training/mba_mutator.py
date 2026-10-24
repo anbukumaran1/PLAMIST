@@ -68,8 +68,10 @@ class Var(Node):
 class Const(Node):
     val: int
 
-    # Render constant value as string.
+    # Render constant value, displaying 64-bit values in hex notation.
     def to_string(self) -> str:
+        if self.val > 255:
+            return hex(self.val)
         return str(self.val)
 
 # Helper constructor functions for clean rewrite rule authoring.
@@ -110,6 +112,20 @@ OP_MAP = {
 UNARY_OP_MAP = {
     ast.Invert: "~",
 }
+
+# Extract all variable identifiers present within an IR subtree.
+def extract_variables(node: Node) -> set[str]:
+    vars_found = set()
+    def visit(n: Node) -> None:
+        if isinstance(n, Var):
+            vars_found.add(n.name)
+        elif isinstance(n, BinOp):
+            visit(n.left)
+            visit(n.right)
+        elif isinstance(n, UnaryOp):
+            visit(n.operand)
+    visit(node)
+    return vars_found
 
 # Parse Python expression string into Intermediate Representation (IR) tree.
 def parse_to_ir(expr: str) -> Node:
@@ -196,6 +212,49 @@ class MBAMutator:
 
         # Base case for Const or unmodified nodes.
         return node
+
+    # Stage 3: Inject opaque zeros into binary operation nodes.
+    def inject_opaque_zeros(self, ir_tree: Node) -> Node:
+        # Collect existing variables in tree to maximize data-flow confusion.
+        var_list = sorted(list(extract_variables(ir_tree)))
+        if not var_list:
+            var_list = ["x"]
+
+        # Recursive traversal wrapping binary nodes with 30% probability.
+        def traverse(node: Node) -> Node:
+            if isinstance(node, BinOp):
+                # Recurse on child nodes first.
+                left = traverse(node.left)
+                right = traverse(node.right)
+                curr = BinOp(node.op, left, right)
+
+                # 30% probability of wrapping binary node with an opaque zero.
+                if random.random() < 0.3:
+                    # Select variables a, b, c from existing tree variables.
+                    a = Var(random.choice(var_list))
+                    b = Var(random.choice(var_list))
+                    c = Var(random.choice(var_list))
+
+                    # Choose between Omega 1 and Omega 2.
+                    if random.random() < 0.5:
+                        # Omega 1: Sub(Sub(Or(a, b), Xor(a, b)), And(a, b)) == 0
+                        omega = Sub(Sub(Or(a, b), Xor(a, b)), And(a, b))
+                    else:
+                        # Omega 2: Mult(And(a, Not(a)), c) == 0
+                        omega = Mult(And(a, Not(a)), c)
+
+                    # Generate random 64-bit integer constant.
+                    random_64bit_hex = random.getrandbits(64)
+                    curr = Add(curr, Mult(Const(random_64bit_hex), omega))
+
+                return curr
+
+            if isinstance(node, UnaryOp):
+                return UnaryOp(node.op, traverse(node.operand))
+
+            return node
+
+        return traverse(ir_tree)
 
 if __name__ == "__main__":
     # Initialize mutator with fixed seed for deterministic reproducibility.
