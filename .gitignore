@@ -3,3 +3,7 @@ training/venv/
 __pycache__/
 *.pyc
 .claude/
+*.gguf
+*.zip
+palimpsest_qwen_model/
+
