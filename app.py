@@ -12,99 +12,108 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "training"))
 from ast_slicer import count_nodes
 from langgraph_orchestrator import CEGISState, app as cegis_graph
 from mba_mutator import MBAMutator, parse_to_ir, SEEDS
+from z3_verifier import verify_equivalence
 
 # Configure wide layout with cybersecurity-themed title and icon.
-st.set_page_config(layout="wide", page_title="PALIMPSEST | VEX-MORPH", page_icon="🛡️")
+st.set_page_config(layout="wide", page_title="PALIMPSEST | VEX-MORPH Workstation", page_icon="🛡️")
 
 # Custom CSS injecting polished cybersecurity reverse-engineering aesthetic.
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
 
     .stApp {
-        background-color: #080c14;
+        background-color: #05080f;
         color: #e2e8f0;
         font-family: 'JetBrains Mono', monospace;
+        background-image: radial-gradient(rgba(14, 165, 233, 0.04) 1px, transparent 1px);
+        background-size: 24px 24px;
     }
-    h1, h2, h3, h4 {
+    h1, h2, h3, h4, h5 {
         color: #38bdf8 !important;
         font-family: 'JetBrains Mono', monospace;
         letter-spacing: -0.5px;
     }
     .metric-card {
-        background: #0f172a;
+        background: #090e17;
         border: 1px solid #1e293b;
         border-radius: 8px;
         padding: 16px;
         text-align: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        transition: border-color 0.2s ease-in-out;
+    }
+    .metric-card:hover {
+        border-color: #38bdf8;
     }
     .metric-label {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         color: #94a3b8;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
         margin-bottom: 6px;
     }
     .metric-value {
-        font-size: 1.6rem;
-        font-weight: 700;
+        font-size: 1.65rem;
+        font-weight: 800;
         color: #38bdf8;
     }
     .stTextArea textarea {
-        background-color: #0b1120 !important;
+        background-color: #080d1a !important;
         color: #38bdf8 !important;
         font-family: 'JetBrains Mono', monospace !important;
-        border: 1px solid #334155 !important;
-        border-radius: 6px !important;
+        border: 1px solid #1e293b !important;
+        border-radius: 8px !important;
         font-size: 0.92rem !important;
         line-height: 1.5 !important;
     }
     .stTextArea textarea:focus {
         border-color: #0ea5e9 !important;
-        box-shadow: 0 0 0 1px #0ea5e9 !important;
+        box-shadow: 0 0 15px rgba(14, 165, 233, 0.25) !important;
     }
     .generator-btn>button {
-        background-color: #1e293b !important;
-        color: #93c5fd !important;
-        border: 1px solid #334155 !important;
+        background-color: #0c1322 !important;
+        color: #38bdf8 !important;
+        border: 1px solid #1e293b !important;
         border-radius: 6px !important;
         font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.82rem !important;
-        padding: 0.4rem 0.8rem !important;
-        transition: all 0.15s ease-in-out !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        padding: 0.45rem 0.6rem !important;
+        transition: all 0.2s ease-in-out !important;
     }
     .generator-btn>button:hover {
-        background-color: #0f172a !important;
+        background-color: #111d33 !important;
         border-color: #38bdf8 !important;
-        color: #38bdf8 !important;
-        box-shadow: 0 0 10px rgba(56, 189, 248, 0.2) !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.3) !important;
+        transform: translateY(-1px) !important;
     }
     .execute-btn>button {
         background: linear-gradient(135deg, #0284c7 0%, #059669 100%) !important;
         color: #ffffff !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
         font-size: 1.05rem !important;
-        letter-spacing: 0.5px !important;
+        letter-spacing: 0.6px !important;
         border: none !important;
         border-radius: 8px !important;
         padding: 0.75rem 1.5rem !important;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4) !important;
+        box-shadow: 0 4px 18px rgba(2, 132, 199, 0.45) !important;
         transition: all 0.2s ease-in-out !important;
     }
     .execute-btn>button:hover {
         background: linear-gradient(135deg, #0369a1 0%, #047857 100%) !important;
-        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6) !important;
+        box-shadow: 0 6px 24px rgba(2, 132, 199, 0.65) !important;
         transform: translateY(-1px) !important;
     }
     .status-badge {
         display: inline-block;
-        padding: 3px 10px;
+        padding: 4px 10px;
         border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
     }
     .badge-verified {
@@ -122,6 +131,39 @@ st.markdown(
         color: #38bdf8;
         border: 1px solid #0284c7;
     }
+    .badge-gold {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid #d97706;
+    }
+    .cyber-panel {
+        background: #090e17;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+    .reasoning-box {
+        background: #060911;
+        border-left: 3px solid #38bdf8;
+        padding: 10px 14px;
+        border-radius: 0 6px 6px 0;
+        color: #94a3b8;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+    .feedback-box-sat {
+        background: #130a0d;
+        border-left: 3px solid #ef4444;
+        padding: 10px 14px;
+        border-radius: 0 6px 6px 0;
+        color: #fca5a5;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        margin-top: 8px;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -133,14 +175,20 @@ DEFAULT_OBFUSCATED_MBA = (
     "(((0xca70da7a) * (((((((x) | (x))) - (((x) ^ (x))))) - (((x) & (x))))))))))"
 )
 
-# Initialize session state for user input if not present.
+# Initialize session state variables.
 if "mba_code_input" not in st.session_state:
     st.session_state["mba_code_input"] = DEFAULT_OBFUSCATED_MBA
+if "target_seed" not in st.session_state:
+    st.session_state["target_seed"] = "x + y"
+if "gen_banner" not in st.session_state:
+    st.session_state["gen_banner"] = ""
 
 # Callback function to dynamically generate and inject random scrambled MBA expressions.
 def generate_and_set_code(tier: int, register_only: bool = False, constant_heavy: bool = False, clear: bool = False):
     if clear:
         st.session_state["mba_code_input"] = ""
+        st.session_state["target_seed"] = ""
+        st.session_state["gen_banner"] = "Input buffer cleared."
         return
 
     mutator = MBAMutator()
@@ -156,15 +204,28 @@ def generate_and_set_code(tier: int, register_only: bool = False, constant_heavy
         ir = parse_to_ir(seed)
         unfolded = mutator.unfold_constants(ir)
         obf = mutator.inject_opaque_zeros(unfolded)
-        st.session_state["mba_code_input"] = obf.to_string()
+        obf_str = obf.to_string()
+        st.session_state["mba_code_input"] = obf_str
+        st.session_state["target_seed"] = seed
+        nodes = count_nodes(obf_str)
+        st.session_state["gen_banner"] = f"⚡ Synthesized Constant-Heavy Expression (Target: '{seed}', {nodes} AST Nodes)"
     elif register_only:
         reg_seeds = [s for s in SEEDS if any(r in s for r in ["rax", "rbx", "rcx", "rdx", "rsi", "rdi", "r8", "r9"])]
         seed = random.choice(reg_seeds)
         res = mutator.mutate(seed=seed, tier=tier)
-        st.session_state["mba_code_input"] = res["obfuscated_expr"]
+        obf_str = res["obfuscated_expr"]
+        st.session_state["mba_code_input"] = obf_str
+        st.session_state["target_seed"] = seed
+        nodes = count_nodes(obf_str)
+        st.session_state["gen_banner"] = f"⚡ Synthesized x86-64 Register MBA (Target: '{seed}', Tier {tier}, {nodes} AST Nodes)"
     else:
         res = mutator.mutate(tier=tier)
-        st.session_state["mba_code_input"] = res["obfuscated_expr"]
+        obf_str = res["obfuscated_expr"]
+        seed = res["canonical_seed"]
+        st.session_state["mba_code_input"] = obf_str
+        st.session_state["target_seed"] = seed
+        nodes = count_nodes(obf_str)
+        st.session_state["gen_banner"] = f"⚡ Synthesized Tier {tier} Expression (Target: '{seed}', {nodes} AST Nodes)"
 
 # Sidebar configuration and engine diagnostics.
 with st.sidebar:
@@ -174,11 +235,12 @@ with st.sidebar:
     st.markdown("### 📡 System Diagnostics")
     st.markdown(
         """
-        <div style="font-size: 0.85rem; line-height: 1.8;">
+        <div style="font-size: 0.85rem; line-height: 1.9;">
             <div>🟢 <strong>Model:</strong> <code>palimpsest_qwen</code></div>
             <div>🟢 <strong>Prover:</strong> <code>Z3 QF_BV Miter (64-Bit)</code></div>
-            <div>🟢 <strong>Pipeline:</strong> <code>LangGraph CEGIS Loop</code></div>
+            <div>🟢 <strong>Orchestration:</strong> <code>LangGraph CEGIS</code></div>
             <div>🟢 <strong>Quantization:</strong> <code>Q4_K_M GGUF</code></div>
+            <div>🟢 <strong>Differential Fuzz:</strong> <code>64-Bit Random Invariance</code></div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -199,26 +261,26 @@ with st.sidebar:
 st.title("🛡️ PALIMPSEST: VEX-MORPH")
 st.markdown(
     """
-    <div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 22px;">
         <span class="status-badge badge-info">Qwen-2.5-Coder-3B QLoRA</span>
         <span class="status-badge badge-verified">Formal Z3 QF_BV Prover</span>
-        <span class="status-badge badge-info">Zero-Trust Neurosymbolic CEGIS</span>
+        <span class="status-badge badge-gold">Neurosymbolic CEGIS Loop</span>
         <span class="status-badge badge-verified">Air-Gapped & Local</span>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# Section 1: Random Scrambled MBA Code Generator.
+# Section 1: Random Scrambled MBA Code Generator Toolbar.
 st.markdown("#### ⚡ Random Scrambled MBA Code Generator")
-st.caption("Click any generator below to dynamically synthesize fresh, mathematically verified scrambled MBA expressions on the fly:")
+st.caption("Click any button below to dynamically synthesize fresh, mathematically verified 64-bit scrambled MBA expressions on demand:")
 
 # Render generator action buttons across columns.
-g_col1, g_col2, g_col3, g_col4, g_col5, g_col6 = st.columns([1.2, 1.2, 1.2, 1.3, 1.3, 0.8])
+g_col1, g_col2, g_col3, g_col4, g_col5, g_col6 = st.columns([1.1, 1.1, 1.1, 1.3, 1.3, 0.7])
 
 with g_col1:
     st.markdown('<div class="generator-btn">', unsafe_allow_html=True)
-    st.button("🎲 Tier 1 (Linear MBA)", on_click=generate_and_set_code, args=(1,), use_container_width=True)
+    st.button("🎲 Tier 1 (Linear)", on_click=generate_and_set_code, args=(1,), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 with g_col2:
@@ -238,13 +300,24 @@ with g_col4:
 
 with g_col5:
     st.markdown('<div class="generator-btn">', unsafe_allow_html=True)
-    st.button("🎲 Constant-Heavy Folding", on_click=generate_and_set_code, args=(2, False, True), use_container_width=True)
+    st.button("🎲 Constant Unfolding", on_click=generate_and_set_code, args=(2, False, True), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 with g_col6:
     st.markdown('<div class="generator-btn">', unsafe_allow_html=True)
     st.button("🧹 Clear", on_click=generate_and_set_code, args=(0, False, False, True), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
+
+# Display generator feedback message if present.
+if st.session_state.get("gen_banner"):
+    st.markdown(
+        f"""
+        <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid #0284c7; border-radius: 6px; padding: 6px 12px; margin-top: 10px; font-size: 0.82rem; color: #7dd3fc;">
+            {st.session_state['gen_banner']}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
 
@@ -328,11 +401,11 @@ if execute_clicked:
             st.markdown(
                 """
                 <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-                    <div style="color: #34d399; font-weight: 700; font-size: 1.1rem;">
-                        ✅ FORMALLY VERIFIED: QF_BV_UNSAT
+                    <div style="color: #34d399; font-weight: 700; font-size: 1.15rem;">
+                        ✅ FORMALLY VERIFIED: EQUIVALENCE CERTIFIED
                     </div>
                     <div style="color: #cbd5e1; font-size: 0.88rem; margin-top: 4px;">
-                        The candidate expression is <strong>mathematically proven identical</strong> to the obfuscated input across all 2<sup>64</sup> bit-vector evaluations.
+                        The candidate expression is <strong>mathematically proven identical</strong> to the obfuscated input across all 64-bit bit-vector evaluations.
                     </div>
                 </div>
                 """,
@@ -342,7 +415,7 @@ if execute_clicked:
             st.markdown(
                 f"""
                 <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-                    <div style="color: #f87171; font-weight: 700; font-size: 1.1rem;">
+                    <div style="color: #f87171; font-weight: 700; font-size: 1.15rem;">
                         ❌ VERIFICATION INCONCLUSIVE / EXHAUSTED ({final_state['status']})
                     </div>
                     <div style="color: #cbd5e1; font-size: 0.88rem; margin-top: 4px;">
@@ -398,6 +471,27 @@ if execute_clicked:
 
         st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
 
+        # Target comparison card if generated from known seed.
+        target_seed = st.session_state.get("target_seed")
+        if target_seed and final_state["status"] == "VERIFIED":
+            seed_match = target_seed.replace(" ", "") == final_state["current_expr"].replace(" ", "")
+            match_badge = "✅ 100% CANONICAL MATCH" if seed_match else "✓ FORMALLY EQUIVALENT"
+            badge_class = "badge-verified" if seed_match else "badge-info"
+            st.markdown(
+                f"""
+                <div class="cyber-panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.85rem; color: #94a3b8; font-weight: 700;">GROUND TRUTH TARGET VERIFICATION</span>
+                        <span class="status-badge {badge_class}">{match_badge}</span>
+                    </div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1;">
+                        Target Canonical Seed: <code style="color: #38bdf8; font-size: 0.95rem;">{target_seed}</code>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
         # Simplified canonical expression card.
         st.markdown("### 🎯 De-obfuscated Canonical Expression:")
         st.code(final_state["current_expr"], language="python")
@@ -411,20 +505,30 @@ if execute_clicked:
                 if "Z3_VERIFICATION_FAILED" in msg:
                     st.markdown(
                         f"""
-                        <div style="background: #18111b; border: 1px solid #7f1d1d; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                        <div style="background: #15090d; border: 1px solid #7f1d1d; border-radius: 6px; padding: 14px; margin-bottom: 14px;">
                             <span class="status-badge badge-sat">Hop {hop_counter} Formal Feedback: Counterexample Witness</span>
-                            <pre style="background: transparent; color: #fca5a5; margin-top: 8px; margin-bottom: 0;">{msg}</pre>
+                            <div class="feedback-box-sat">{msg}</div>
                         </div>
                         """,
                         unsafe_allow_html=True,
                     )
                     hop_counter += 1
                 else:
+                    # Clean message and isolate think block if present.
+                    clean_display = msg
+                    think_block = ""
+                    import re
+                    think_match = re.search(r"<think>([\s\S]*?)</think>", msg)
+                    if think_match:
+                        think_block = think_match.group(1).strip()
+                        clean_display = re.sub(r"<think>[\s\S]*?</think>", "", msg).strip()
+
                     st.markdown(
                         f"""
-                        <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                        <div style="background: #090e17; border: 1px solid #1e293b; border-radius: 6px; padding: 14px; margin-bottom: 14px;">
                             <span class="status-badge badge-info">Hop {hop_counter} LLM Hypothesis & Reasoning</span>
-                            <pre style="background: transparent; color: #93c5fd; margin-top: 8px; margin-bottom: 0;">{msg}</pre>
+                            {f'<div class="reasoning-box"><strong>CoT Reasoning:</strong><br>{think_block}</div>' if think_block else ''}
+                            <div style="color: #38bdf8; margin-top: 8px; font-weight: 600;">Proposed Candidate: <code>{clean_display}</code></div>
                         </div>
                         """,
                         unsafe_allow_html=True,
@@ -433,10 +537,10 @@ if execute_clicked:
             if final_state["status"] == "VERIFIED":
                 st.markdown(
                     f"""
-                    <div style="background: #061c14; border: 1px solid #059669; border-radius: 6px; padding: 12px; margin-top: 10px;">
+                    <div style="background: #051912; border: 1px solid #059669; border-radius: 6px; padding: 14px; margin-top: 10px;">
                         <span class="status-badge badge-verified">Formal Theorem Proof Complete: UNSAT</span>
                         <div style="color: #6ee7b7; margin-top: 8px; font-size: 0.9rem;">
-                            Prover verified negation solver circuit (seed != candidate) is UNSAT in {latency:.3f} ms. Expression reduction certified.
+                            Prover verified negation circuit (seed != candidate) is UNSAT in {latency:.3f} ms. 64-bit mathematical equivalence certified.
                         </div>
                     </div>
                     """,

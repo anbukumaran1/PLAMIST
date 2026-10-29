@@ -53,6 +53,36 @@ CONSTANT_SEEDS = [
     "(rdi & 0xffff) ^ 0x55",
 ]
 
+# Canonical register and variable pool for procedural expressions.
+CANONICAL_VARS = [
+    "x", "y", "z", "rax", "rbx", "rcx", "rdx", "rsi", "rdi",
+    "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"
+]
+
+# Canonical binary operators for procedural expressions.
+CANONICAL_OPS = ["+", "-", "^", "&", "|"]
+
+# Procedural canonical irreducible expression generator for idempotency traces.
+def generate_canonical_expression() -> str:
+    if random.random() < 0.3:
+        return random.choice(SEEDS)
+    mode = random.randint(1, 4)
+    r1 = random.choice(CANONICAL_VARS)
+    r2 = random.choice([r for r in CANONICAL_VARS if r != r1])
+    op = random.choice(CANONICAL_OPS)
+    if mode == 1:
+        return f"{r1} {op} {r2}"
+    elif mode == 2:
+        c = random.choice([1, 2, 4, 8, 16, 32, 64, 0x10, 0x20, 0x55, 0xaa, 0xff, 0x100, 0x1000])
+        c_str = hex(c) if c > 255 else str(c)
+        return f"{r1} {op} {c_str}"
+    elif mode == 3:
+        r3 = random.choice([r for r in CANONICAL_VARS if r not in (r1, r2)])
+        op2 = random.choice(CANONICAL_OPS)
+        return f"({r1} {op} {r2}) {op2} {r3}"
+    else:
+        return f"~{r1} {op} {r2}"
+
 # Supported binary operator swaps for realistic near-miss mutation.
 OP_SWAPS = [
     ("+", "^"),
@@ -255,7 +285,7 @@ def generate_row_worker(args_tuple: Tuple[int, str, int]) -> Optional[Dict[str, 
             }
 
         elif pillar == "IDEMPOTENT":
-            canonical_seed = random.choice(SEEDS)
+            canonical_seed = generate_canonical_expression()
             nodes = count_nodes(canonical_seed)
             verif = verify_equivalence(canonical_seed, canonical_seed)
             z3_lat = verif.get("latency_ms", 0.0)
@@ -459,7 +489,7 @@ def main() -> None:
                     pct = (total_verified / args.rows) * 100.0
                     if pct >= next_progress_pct or total_verified == args.rows:
                         elapsed = time.time() - start_time
-                        print(f"[Progress] {total_verified}/{args.rows} rows verified ({pct:.1f}%) | Elapsed: {elapsed:.1f}s")
+                        print(f"[Progress] {total_verified}/{args.rows} rows verified ({pct:.1f}%) | Elapsed: {elapsed:.1f}s", flush=True)
                         next_progress_pct += 5.0
 
                     # Submit replenishment task if remaining work exists.

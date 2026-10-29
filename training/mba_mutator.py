@@ -311,33 +311,34 @@ class MBAMutator:
         if not var_list:
             var_list = ["x"]
 
+        # Select random variable operands from active tree scope.
         a = Var(random.choice(var_list))
         b = Var(random.choice(var_list))
         c = Var(random.choice(var_list))
-        pred_choice = random.choice(["0a", "0b", "0c", "0d"])
-        if pred_choice in ("0a", "0c"):
-            # Use power-of-two scale for mixed arithmetic zero predicates to ensure sub-millisecond BitVec solving.
-            hex_const = random.choice([1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024])
-        else:
-            hex_const = get_masked_const()
+        pred_choice = random.choice(["0b", "0d", "0b", "0d", "0a", "0c"])
+
         if pred_choice == "0a":
             # Omega_0a: ((a | b) - (a ^ b)) - (a & b)
             omega = Sub(Sub(Or(a, b), Xor(a, b)), And(a, b))
-            rule = f"Opaque Zero: + ({hex(hex_const)} * ((({a.name} | {b.name}) - ({a.name} ^ {b.name})) - ({a.name} & {b.name}))) == 0"
+            rule = f"Opaque Zero: + (((({a.name} | {b.name}) - ({a.name} ^ {b.name})) - ({a.name} & {b.name}))) == 0"
+            wrapped = Add(target, omega)
         elif pred_choice == "0b":
             # Omega_0b: (a & (~a)) * c
+            hex_const = get_masked_const()
             omega = Mult(And(a, Not(a)), c)
             rule = f"Opaque Zero: + ({hex(hex_const)} * (({a.name} & (~{a.name})) * {c.name})) == 0"
+            wrapped = Add(target, Mult(Const(hex_const), omega))
         elif pred_choice == "0c":
-            # Omega_0c: ((a ^ b) + (2 * (a & b))) - (a + b)
-            omega = Sub(Add(Xor(a, b), Mult(Const(2), And(a, b))), Add(a, b))
-            rule = f"Opaque Zero: + ({hex(hex_const)} * ((({a.name} ^ {b.name}) + (2 * ({a.name} & {b.name}))) - ({a.name} + {b.name}))) == 0"
+            # Omega_0c: ((a ^ b) + ((a & b) << 1)) - (a + b)
+            omega = Sub(Add(Xor(a, b), BinOp("<<", And(a, b), Const(1))), Add(a, b))
+            rule = f"Opaque Zero: + (((({a.name} ^ {b.name}) + (({a.name} & {b.name}) << 1)) - ({a.name} + {b.name}))) == 0"
+            wrapped = Add(target, omega)
         else:
             # Omega_0d: ((~a) | (~b)) ^ (~(a & b))
+            hex_const = get_masked_const()
             omega = Xor(Or(Not(a), Not(b)), Not(And(a, b)))
             rule = f"Opaque Zero: + ({hex(hex_const)} * (((~{a.name}) | (~{b.name})) ^ (~({a.name} & {b.name})))) == 0"
-
-        wrapped = Add(target, Mult(Const(hex_const), omega))
+            wrapped = Add(target, Mult(Const(hex_const), omega))
         candidate = replace_node(root, target, wrapped)
         try:
             if count_nodes(candidate.to_string()) <= MAX_AST_NODES:
@@ -353,10 +354,7 @@ class MBAMutator:
         # Avoid non-linear multiplication in expressions containing bitwise shifts to prevent solver timeouts.
         if has_shift(root):
             return root
-        eligible = collect_nodes(
-            root,
-            lambda n: (isinstance(n, (Var, Const)) or (isinstance(n, BinOp) and n.op in ("+", "-", "^") and count_nodes(n.to_string()) <= 15)) and not has_shift(n)
-        )
+        eligible = collect_nodes(root, lambda n: isinstance(n, (Var, Const)) and not has_shift(n))
         if not eligible:
             return root
         target = random.choice(eligible)
