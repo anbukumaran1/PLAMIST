@@ -90,7 +90,7 @@ if is_dark:
     theme_text_secondary = "#94a3b8"
     theme_text_muted = "#64748b"
     theme_code_bg = "#050811"
-    theme_code_color = "#e2e8f0"
+    theme_code_color = "#38bdf8"
     theme_nav_border = "rgba(255, 255, 255, 0.08)"
     theme_stat_bg = "#0d1527"
     theme_btn_sec_bg = "#1e293b"
@@ -103,27 +103,32 @@ if is_dark:
     theme_verified_border = "rgba(16, 185, 129, 0.3)"
     theme_verified_text = "#34d399"
     theme_banner_bg = "rgba(16, 185, 129, 0.10)"
+    theme_ribbon_bg = "#0b1222"
+    theme_ribbon_border = "rgba(56, 189, 248, 0.2)"
 else:
+    # Luminous, ultra-vivid modern cybersecurity aesthetic for light mode.
     theme_bg = "#f8fafc"
     theme_card_bg = "#ffffff"
-    theme_card_border = "rgba(15, 23, 42, 0.08)"
+    theme_card_border = "#e2e8f0"
     theme_text_primary = "#0f172a"
     theme_text_secondary = "#475569"
-    theme_text_muted = "#94a3b8"
-    theme_code_bg = "#f1f5f9"
-    theme_code_color = "#0f172a"
+    theme_text_muted = "#64748b"
+    theme_code_bg = "#090d16"
+    theme_code_color = "#38bdf8"
     theme_nav_border = "rgba(15, 23, 42, 0.08)"
     theme_stat_bg = "#ffffff"
-    theme_btn_sec_bg = "#f1f5f9"
-    theme_btn_sec_text = "#1e293b"
-    theme_btn_sec_border = "rgba(15, 23, 42, 0.12)"
-    theme_shadow = "0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.04)"
+    theme_btn_sec_bg = "#ffffff"
+    theme_btn_sec_text = "#0f172a"
+    theme_btn_sec_border = "#cbd5e1"
+    theme_shadow = "0 10px 25px -5px rgba(2, 132, 199, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03)"
     theme_accent = "#0284c7"
-    theme_accent_glow = "rgba(2, 132, 199, 0.2)"
+    theme_accent_glow = "rgba(2, 132, 199, 0.15)"
     theme_verified_bg = "rgba(5, 150, 105, 0.10)"
-    theme_verified_border = "rgba(5, 150, 105, 0.3)"
-    theme_verified_text = "#059669"
-    theme_banner_bg = "rgba(5, 150, 105, 0.08)"
+    theme_verified_border = "rgba(5, 150, 105, 0.35)"
+    theme_verified_text = "#047857"
+    theme_banner_bg = "linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(2, 132, 199, 0.06) 100%)"
+    theme_ribbon_bg = "#ffffff"
+    theme_ribbon_border = "#cbd5e1"
 
 # Inject responsive, vivid, modern styling supporting both themes.
 st.markdown(
@@ -164,7 +169,7 @@ st.markdown(
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 1.3rem;
+        font-size: 1.35rem;
         font-weight: 800;
         color: {theme_text_primary};
         letter-spacing: -0.5px;
@@ -174,10 +179,10 @@ st.markdown(
         color: {theme_accent};
         border: 1px solid {theme_accent};
         border-radius: 999px;
-        padding: 3px 12px;
+        padding: 4px 12px;
         font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
     }}
     /* Sleek Cards */
@@ -196,6 +201,7 @@ st.markdown(
     .hero-stat-card {{
         background: {theme_stat_bg};
         border: 1px solid {theme_card_border};
+        border-top: 3px solid {theme_accent};
         border-radius: 12px;
         padding: 20px;
         text-align: center;
@@ -218,29 +224,53 @@ st.markdown(
     .pillar-card {{
         background: {theme_card_bg};
         border: 1px solid {theme_card_border};
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 14px;
+        padding: 22px;
         box-shadow: {theme_shadow};
         height: 100%;
-        transition: transform 0.2s ease;
+        transition: transform 0.2s ease, border-color 0.2s ease;
     }}
     .pillar-card:hover {{
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        border-color: {theme_accent};
     }}
     .pillar-icon {{
-        font-size: 1.8rem;
-        margin-bottom: 10px;
+        font-size: 2rem;
+        margin-bottom: 12px;
     }}
     .pillar-title {{
-        font-size: 1.05rem;
+        font-size: 1.08rem;
         font-weight: 700;
         color: {theme_text_primary};
-        margin-bottom: 6px;
+        margin-bottom: 8px;
     }}
     .pillar-body {{
-        font-size: 0.85rem;
+        font-size: 0.88rem;
         color: {theme_text_secondary};
-        line-height: 1.55;
+        line-height: 1.6;
+    }}
+    /* Hero Feature Ribbon */
+    .hero-feature-ribbon {{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        background: {theme_ribbon_bg};
+        border: 1px solid {theme_ribbon_border};
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin: 24px auto 0 auto;
+        box-shadow: {theme_shadow};
+        text-align: left;
+    }}
+    .ribbon-item {{
+        font-size: 0.86rem;
+        color: {theme_text_secondary};
+        line-height: 1.45;
+    }}
+    .ribbon-item strong {{
+        color: {theme_text_primary};
+        display: block;
+        margin-bottom: 2px;
     }}
     /* Comparison Before/After Deck */
     .compare-container {{
@@ -266,7 +296,7 @@ st.markdown(
     }}
     .compare-code {{
         background: {theme_code_bg};
-        border: 1px solid {theme_card_border};
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 8px;
         padding: 14px;
         font-family: 'JetBrains Mono', monospace;
@@ -290,8 +320,8 @@ st.markdown(
         color: {theme_verified_text};
         border: 1px solid {theme_verified_border};
         border-radius: 999px;
-        padding: 4px 14px;
-        font-size: 0.8rem;
+        padding: 5px 16px;
+        font-size: 0.82rem;
         font-weight: 700;
         letter-spacing: 0.02em;
     }}
@@ -322,6 +352,7 @@ st.markdown(
         font-weight: 600 !important;
         padding: 0.5rem 1rem !important;
         transition: all 0.15s ease !important;
+        box-shadow: {theme_shadow} !important;
     }}
     .pill-btn>button:hover {{
         background: {theme_accent} !important;
@@ -398,7 +429,7 @@ with nav_col1:
         unsafe_allow_html=True,
     )
 with nav_col2:
-    btn_home, btn_malware, btn_lab, btn_theme = st.columns([1, 1.4, 1.2, 0.8])
+    btn_home, btn_malware, btn_lab, btn_theme = st.columns([1, 1.4, 1.2, 0.9])
     with btn_home:
         if st.button("🏠 Overview", use_container_width=True):
             st.session_state["nav_view"] = "home"
@@ -412,7 +443,7 @@ with nav_col2:
             st.session_state["nav_view"] = "lab"
             st.rerun()
     with btn_theme:
-        theme_label = "☀️ Light" if is_dark else "🌙 Dark"
+        theme_label = "☀️ Light Mode" if is_dark else "🌙 Dark Mode"
         if st.button(theme_label, use_container_width=True):
             st.session_state["theme"] = "light" if is_dark else "dark"
             st.rerun()
@@ -425,20 +456,38 @@ current_view = st.session_state["nav_view"]
 if current_view == "home":
     st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
     
-    # Hero Title & Sales Pitch for Malware & Cybersecurity.
+    # Hero Title & Sales Pitch Focused on Malware, Custom Fine-Tuning & Zero Hallucination.
     st.markdown(
         f"""
-        <div style="text-align: center; max-width: 880px; margin: 0 auto 36px auto;">
+        <div style="text-align: center; max-width: 940px; margin: 0 auto 36px auto;">
             <div style="display: inline-block; margin-bottom: 16px;">
-                <span class="verified-pill">🚀 ZERO-HALLUCINATION SMT DECOMPILATION FOR MALWARE & REVERSE ENGINEERING</span>
+                <span class="verified-pill">🛡️ SMT-VERIFIED REVERSE ENGINEERING FOR REAL-WORLD MALWARE</span>
             </div>
-            <h1 style="font-size: 3.2rem; line-height: 1.15; margin-bottom: 18px;">
-                Turn Impossible Obfuscated Code into Simple, Proven Logic.
+            <h1 style="font-size: 3.2rem; line-height: 1.15; margin-bottom: 20px;">
+                Decompile Heavily Obfuscated Malware Logic with Zero Hallucination.
             </h1>
-            <p style="font-size: 1.18rem; color: {theme_text_secondary}; line-height: 1.65; margin: 0 auto;">
-                PALIMPSEST couples local generative reasoning (<strong>Qwen-2.5-Coder-3B</strong>) with the <strong>Z3 SMT Theorem Prover</strong>. 
-                It strips away hundreds of lines of fake mathematical noise in real malware and mathematical expressions — with <strong>100% mathematical zero-trust proof</strong>.
+            <p style="font-size: 1.18rem; color: {theme_text_secondary}; line-height: 1.68; margin: 0 auto 20px auto;">
+                <strong>PALIMPSEST</strong> is purpose-built to break heavy compiler obfuscation (<strong>OLLVM & Tigress</strong>) inside active malware payloads. 
+                Powered by a <strong>custom SLM fine-tuned on 15,000+ synthetic MBA threat routines</strong> and bound to the <strong>Z3 SMT Theorem Prover</strong>, our agentic <strong>LangGraph CEGIS engine</strong> collapses impenetrable polynomial labyrinths into clean, verifiable logic — <strong>guaranteeing 100% zero-hallucination decompilation.</strong>
             </p>
+            <div class="hero-feature-ribbon">
+                <div class="ribbon-item">
+                    <strong>🧬 Custom Fine-Tuned SLM</strong>
+                    Fine-tuned via QLoRA on 15,000+ synthetic MBA threat patterns.
+                </div>
+                <div class="ribbon-item">
+                    <strong>🛡️ Zero Hallucination Guarantee</strong>
+                    Formally anchored by Z3 64-bit BitVec SMT Miter equivalence proofs.
+                </div>
+                <div class="ribbon-item">
+                    <strong>⚡ LangGraph Agentic Loop</strong>
+                    Self-correcting CEGIS state machine with automated witness diagnosis.
+                </div>
+                <div class="ribbon-item">
+                    <strong>🔐 Cyber Payload De-Cloaking</strong>
+                    Recovers ransomware AES keys, C2 beacon hashes & unpacker jump targets.
+                </div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -451,7 +500,7 @@ if current_view == "home":
             f"""
             <div class="hero-stat-card">
                 <div class="hero-stat-num">95.3%</div>
-                <div class="hero-stat-desc">Obfuscation Code Junk Eliminated</div>
+                <div class="hero-stat-desc">Malware Code Noise Eliminated</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -471,7 +520,7 @@ if current_view == "home":
             f"""
             <div class="hero-stat-card">
                 <div class="hero-stat-num">&lt; 0.5ms</div>
-                <div class="hero-stat-desc">Sub-Millisecond Z3 Proof Latency</div>
+                <div class="hero-stat-desc">Sub-Millisecond Z3 SMT Latency</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -489,7 +538,7 @@ if current_view == "home":
                 <div class="pillar-icon">🧬</div>
                 <div class="pillar-title">Custom Fine-Tuned SLM</div>
                 <div class="pillar-body">
-                    Fine-tuned via QLoRA on a proprietary synthetic dataset of <strong>15,000+</strong> complex Mixed Boolean-Arithmetic expressions (Tigress, OLLVM, and polynomial cascades).
+                    Fine-tuned via QLoRA on our proprietary synthetic dataset of <strong>15,000+</strong> complex Mixed Boolean-Arithmetic threat patterns (Tigress, OLLVM, and deep polynomial cascades).
                 </div>
             </div>
             """,
