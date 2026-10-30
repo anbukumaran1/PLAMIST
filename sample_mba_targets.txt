@@ -1,0 +1,17 @@
+# PALIMPSEST Sample Scrambled MBA Target Expressions
+# Each line represents an obfuscated 64-bit expression to be de-obfuscated and formally proven.
+
+# Target 1: Tier 3 Deep Logic MBA -> Canonical: (x + z) & (y + z)
+((((x * (0 - (z | (~(z))))) ^ z) + ((2 * ((((x ^ (~(x))) + (2 * (x & (~(x))))) + 2) + (0x7d5d3ac0 * (((~(z)) | (~(x))) ^ (~((z & x))))))) * ((x * (0 - (z | (~(z))))) & z))) & (((y ^ z) | (2 * (y & z))) + ((y ^ z) & (2 * (y & z)))))
+
+# Target 2: x86-64 Register MBA -> Canonical: (rsi & rdi) | (r8 & r9)
+((((rsi * ((((rsi ^ (~(rsi))) | (2 * (rsi & (~(rsi))))) + ((rsi ^ (~(rsi))) & (2 * (rsi & (~(rsi)))))) + 2)) & rdi) | (r8 & r9)) + (0x3fc27 * (((~(rsi)) | (~(rsi))) ^ (~((rsi & rsi))))))
+
+# Target 3: Register Subtraction MBA -> Canonical: rax - rbx
+(((rax ^ rbx) - (2 * ((~(rax)) & rbx))) + (((((rax ^ rbx) | ((rax & rbx) << 1)) - ((rax ^ rbx) & ((rax & rbx) << 1))) + (2 * ((rax ^ rbx) & ((rax & rbx) << 1)))) - (rax + rbx)))
+
+# Target 4: Linear Bitwise AND MBA -> Canonical: x & y
+((x & y) + (0x5fe2e151 * (((~(x)) | (~(y))) ^ (~((x & y))))))
+
+# Target 5: Constant-Heavy Unfolded MBA -> Canonical: rax + 0x1000
+((((rax * (((rax ^ (~(rax))) + (2 * (rax & (~(rax))))) + 2)) + 0x1000) | (0x297fe20e * ((rax & (~(rax))) * rax))) + (((rax * (((rax ^ (~(rax))) + (2 * (rax & (~(rax))))) + 2)) + 0x1000) & (0x297fe20e * ((rax & (~(rax))) * rax))))
