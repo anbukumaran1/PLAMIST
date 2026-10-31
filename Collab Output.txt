@@ -1,0 +1,235 @@
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None}.
+==((====))==  Unsloth - 2x faster free finetuning | Num GPUs used = 1
+   \\   /|    Num examples = 100 | Num Epochs = 12 | Total steps = 150
+O^O/ \_/ \    Batch size per device = 2 | Gradient accumulation steps = 4
+\        /    Data Parallel GPUs = 1 | Total batch size (2 x 4 x 1) = 8
+ "-____-"     Trainable parameters = 29,933,568 of 3,115,872,256 (0.96% trained)
+ [150/150 06:12, Epoch 11/12]
+Step	Training Loss
+1	3.378745
+2	2.861701
+3	2.708465
+4	2.772779
+5	2.768660
+6	2.110519
+7	2.316256
+8	1.886217
+9	1.471349
+10	1.300139
+11	1.120508
+12	0.916066
+13	0.761726
+14	0.777580
+15	0.803291
+16	0.697629
+17	0.755165
+18	0.579534
+19	0.543424
+20	0.749064
+21	0.635269
+22	0.540880
+23	0.430444
+24	0.554050
+25	0.410276
+26	0.523866
+27	0.559403
+28	0.517665
+29	0.570289
+30	0.475500
+31	0.503889
+32	0.576454
+33	0.652881
+34	0.470218
+35	0.360007
+36	0.453342
+37	0.526280
+38	0.485504
+39	0.222873
+40	0.326323
+41	0.493479
+42	0.439989
+43	0.507924
+44	0.502498
+45	0.440898
+46	0.510983
+47	0.301123
+48	0.455018
+49	0.586977
+50	0.266904
+51	0.431770
+52	0.487189
+53	0.441353
+54	0.474564
+55	0.476129
+56	0.429248
+57	0.389817
+58	0.482766
+59	0.446420
+60	0.369780
+61	0.424540
+62	0.554311
+63	0.420372
+64	0.362468
+65	0.227225
+66	0.367182
+67	0.327425
+68	0.488735
+69	0.332916
+70	0.425472
+71	0.519428
+72	0.392830
+73	0.333699
+74	0.419906
+75	0.403928
+76	0.394029
+77	0.522577
+78	0.443240
+79	0.307904
+80	0.410061
+81	0.427393
+82	0.385005
+83	0.306922
+84	0.317618
+85	0.393638
+86	0.414947
+87	0.342267
+88	0.315904
+89	0.521545
+90	0.467389
+91	0.355139
+92	0.381594
+93	0.337780
+94	0.514132
+95	0.280480
+96	0.364335
+97	0.329056
+98	0.398482
+99	0.385520
+100	0.299456
+101	0.328480
+102	0.230731
+103	0.360294
+104	0.503244
+105	0.378926
+106	0.301815
+107	0.254108
+108	0.329150
+109	0.434678
+110	0.562575
+111	0.341110
+112	0.226941
+113	0.213674
+114	0.347722
+115	0.252842
+116	0.453062
+117	0.274632
+118	0.369194
+119	0.354112
+120	0.346503
+121	0.342104
+122	0.275168
+123	0.191113
+124	0.321157
+125	0.273234
+126	0.323790
+127	0.445418
+128	0.264572
+129	0.392956
+130	0.317266
+131	0.292732
+132	0.396661
+133	0.315741
+134	0.240331
+135	0.401295
+136	0.308961
+137	0.294365
+138	0.325420
+139	0.341917
+140	0.159287
+141	0.311518
+142	0.193430
+143	0.455359
+144	0.407461
+145	0.274112
+146	0.312027
+147	0.334143
+148	0.432158
+149	0.210398
+150	0.291723
+Both `max_new_tokens` (=256) and `max_length`(=32768) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+<|im_start|>system
+You are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>
+<|im_start|>user
+De-obfuscate this 64-bit MBA expression:
+((((x) ^ (y))) + (((2) * (((x) & (y))))))<|im_end|>
+<|im_start|>assistant
+<think>
+AST Node Count: 10. Analyzing data-flow...
+</think>
+x + y<|im_end|>
+Unsloth: Merging model weights to 16-bit format...
+config.json: 100%
+ 764/764 [00:00<00:00, 63.2kB/s]
+model.safetensors.index.json: 100%
+ 35.6k/35.6k [00:00<00:00, 2.99MB/s]
+Unsloth: Restored added_tokens_decoder metadata in palimpsest_qwen_3b_cegis/tokenizer_config.json.
+Found HuggingFace hub cache directory: /root/.cache/huggingface/hub
+Download complete: 
+  0.00B            
+Reconstruction complete: 
+  0.00B /  0.00B            
+Fetching 1 files: 100%
+ 1/1 [00:00<00:00,  3.83it/s]
+Checking cache directory for required files...
+Cache check failed: model-00001-of-00002.safetensors not found in local cache.
+Not all required files found in cache. Will proceed with downloading.
+Checking cache directory for required files...
+Cache check failed: tokenizer.model not found in local cache.
+Not all required files found in cache. Will proceed with downloading.
+
+
+Unsloth: Preparing safetensor model files:   0%|          | 0/2 [00:00<?, ?it/s]
+model-00001-of-00002.safetensors: reconstructing file: 100%
+ 4.96GB / 4.96GB,  100MB/s  
+model-00001-of-00002.safetensors: downloading bytes: 
+ 4.32GB,  102MB/s  
+
+
+Unsloth: Preparing safetensor model files:  50%|█████     | 1/2 [00:47<00:47, 47.58s/it]
+model-00002-of-00002.safetensors: reconstructing file: 100%
+ 1.21GB / 1.21GB, 73.5MB/s  
+model-00002-of-00002.safetensors: downloading bytes: 
+ 1.06GB, 70.1MB/s  
+
+
+Unsloth: Preparing safetensor model files: 100%|██████████| 2/2 [01:09<00:00, 34.92s/it]
+Note: tokenizer.model not found (this is OK for non-SentencePiece models)
+Unsloth: Merging weights into 16bit: 100%|██████████| 2/2 [01:30<00:00, 45.03s/it]
+Unsloth: Merge process complete. Saved to `/content/palimpsest_qwen_3b_cegis`
+Unsloth: Converting to GGUF format...
+==((====))==  Unsloth: Conversion from HF to GGUF information
+   \\   /|    [0] Installing llama.cpp might take 3 minutes.
+O^O/ \_/ \    [1] Converting HF to GGUF f16 might take 3 minutes.
+\        /    [2] Converting GGUF f16 to ['q4_k_m'] might take 10 minutes each.
+ "-____-"     In total, you will have to wait at least 16 minutes.
+
+Unsloth: Installing llama.cpp. This might take 3 minutes...
+Unsloth: Installing prebuilt llama.cpp b11876-mix-ec42614 (app-b11876-mix-ec42614-linux-x64-cpu.tar.gz) - skipping compilation.
+Unsloth: Preparing converter script...
+Unsloth: [1] Converting model into f16 GGUF format.
+This might take 3 minutes...
+Unsloth: Initial conversion completed! Files: ['palimpsest_qwen_3b_cegis_gguf/Qwen2.5-Coder-3B-Instruct.F16.gguf']
+Unsloth: [2] Converting GGUF f16 into q4_k_m. This might take 10 minutes...
+Unsloth: Model files cleanup...
+Unsloth: All GGUF conversions completed successfully!
+Generated files: ['palimpsest_qwen_3b_cegis_gguf/Qwen2.5-Coder-3B-Instruct.Q4_K_M.gguf']
+Unsloth: example usage for text only LLMs: /root/.unsloth/llama.cpp/llama-cli --model palimpsest_qwen_3b_cegis_gguf/Qwen2.5-Coder-3B-Instruct.Q4_K_M.gguf -p "why is the sky blue?"
+Unsloth: Saved Ollama Modelfile to palimpsest_qwen_3b_cegis_gguf/Modelfile
+Unsloth: convert model to ollama format by running - ollama create model_name -f palimpsest_qwen_3b_cegis_gguf/Modelfile
+{'save_directory': 'palimpsest_qwen_3b_cegis',
+ 'gguf_directory': 'palimpsest_qwen_3b_cegis_gguf',
+ 'gguf_files': ['palimpsest_qwen_3b_cegis_gguf/Qwen2.5-Coder-3B-Instruct.Q4_K_M.gguf'],
+ 'modelfile_location': 'palimpsest_qwen_3b_cegis_gguf/Modelfile',
+ 'want_full_precision': False,
+ 'is_vlm': False,
+ 'fix_bos_token': False}
